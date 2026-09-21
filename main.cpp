@@ -4,11 +4,11 @@
 #include <vector>
 #include <random>
 
-#define RESET   "\033[0m"
-#define GREEN   "\033[32m"      /* Green */
-#define YELLOW  "\033[33m"      /* Yellow */
-#define BLUE    "\033[36m"      /* Blue */
-#define GREY    "\033[90m"
+#define RESET   "\033[0m"       //Default
+#define GREEN   "\033[32m"      //Green
+#define YELLOW  "\033[33m"      //Yellow 
+#define BLUE    "\033[36m"      //Blue
+#define GREY    "\033[90m"      //Grey
 
 
 using namespace std;
