@@ -75,34 +75,50 @@ void fillMatrix(vector<vector<int>>& matrix){
 
     for (int row = 0; row < matrix.size(); row++){
         for (int coll = 0; coll < matrix[row].size(); coll++){
-            
-            
-            int index = (coll * matrix.size() + row) * 4;
-
-            float val = 0;
-
-            float freq = 1;
-            float amp = 1;
-
-            for (int i = 0; i < 12; i++){
-                val += Noise::perlin(row *freq / 10, coll * freq / 10) * amp;
-
-                freq *= 2;
-                amp /= 2;
+            if (row == 0 && coll == 0){
+                matrix[row][coll] = 201; //╔
             }
-
-            val *= 1.2;
-
-            if (val > 1.0f){
-                val = 1.0f;
+            else if (row == 0 && coll == matrix[0].size()-1){
+                matrix[row][coll] = 187; //╗
             }
-            else if (val < -1.0f){
-                val = -1.0f;
+            else if (row == matrix.size()-1 && coll == matrix[0].size()-1){
+                matrix[row][coll] = 188; // ╝
             }
-            int color = (int)(((val + 1.0f) * 0.5f) * 3);
-            matrix[row][coll] = color;
+            else if (row == matrix.size()-1  && coll == 0){
+                matrix[row][coll] = 200; // ╚
+            }
+            else if (row == 0 || row == matrix.size()-1 ){
+                matrix[row][coll] = 205; // ═
+            }
+            else if (coll == 0 || coll == matrix[0].size()-1){
+                matrix[row][coll] = 186; // ║
+            }
+            else{
+                int index = (coll * matrix.size() + row) * 4;
 
-            
+                float val = 0;
+
+                float freq = 1;
+                float amp = 1;
+
+                for (int i = 0; i < 12; i++){
+                    val += Noise::perlin(row *freq / 10, coll * freq / 10) * amp;
+
+                    freq *= 2;
+                    amp /= 2;
+                }
+
+                val *= 1.2;
+
+                if (val > 1.0f){
+                    val = 1.0f;
+                }
+                else if (val < -1.0f){
+                    val = -1.0f;
+                }
+                int color = (int)(((val + 1.0f) * 0.5f) * 3);
+                matrix[row][coll] = color;
+            }
         }
     }
 

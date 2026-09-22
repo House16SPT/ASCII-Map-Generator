@@ -25,7 +25,7 @@ public:
 
         a ^= b << s | b >> w - s;
         a *= 2048411932;
-        float random = a * (3.14159265 / ~(~0u >> 1));
+        float random = a * (3.14159265 / ~(~0u >> 1)); //convert to a random radian
 
         vector2 v;
         v.x = sin(random);
