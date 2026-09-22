@@ -8,6 +8,13 @@ private:
 
 public:
 
+    /*
+    Code used from https://www.youtube.com/watch?v=kCIaHqb60Cw
+    Some minor changes to be more useful for a 4 type ascii art
+    */
+
+
+
     Noise();
     
     typedef struct { //2D vector struct
@@ -59,11 +66,11 @@ public:
         float iy = y - (float)y0;
 
         float n0 = gridGradient(x0,y0,x,y);
-        float n1 = gridGradient(x0,y0,x,y);
+        float n1 = gridGradient(x1,y0,x,y);
         float ix0 = interpolate(n0,n1,ix); 
 
-        n0 = gridGradient(x0,y0,x,y);
-        n1 = gridGradient(x0,y0,x,y);
+        n0 = gridGradient(x0,y1,x,y);
+        n1 = gridGradient(x1,y1,x,y);
         float ix1 = interpolate(n0,n1,ix); 
 
         float value = interpolate(ix0,ix1,iy);
