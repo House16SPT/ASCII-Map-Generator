@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <vector>
 #include <random>
+#include "perlin.hpp"
 
 #define RESET   "\033[0m"       //Default
 #define GREEN   "\033[32m"      //Green
@@ -13,6 +14,7 @@
 
 using namespace std;
 
+/*
 int terrainGen(int last, int row, int coll,mt19937& gen){
     int random;
     if ( row <= 2 || row >= 27){
@@ -67,42 +69,42 @@ int terrainGen(int last, int row, int coll,mt19937& gen){
         }
     }
 }
+*/
 
 void fillMatrix(vector<vector<int>>& matrix){
 
-    int lastC = matrix[0].size()-1; // 39 
-    int lastR = matrix.size()-1; // 19
-    random_device rd;
-    mt19937 gen(rd());
-
-
-
     for (int row = 0; row < matrix.size(); row++){
-        for (int coll = 0; coll < matrix[row].size();coll++){
-            if (row == 0 && coll == 0){
-                matrix[row][coll] = 201; //╔
+        for (int coll = 0; coll < matrix[row].size(); coll++){
+            
+            
+            int index = (coll * matrix.size() + row) * 4;
+
+            float val = 0;
+
+            float freq = 1;
+            float amp = 1;
+
+            for (int i = 0; i < 12; i++){
+                val += Noise::perlin(row *freq / 10, coll * freq / 10) * amp;
+
+                freq *= 2;
+                amp /= 2;
             }
-            else if (row == 0 && coll == lastC){
-                matrix[row][coll] = 187; //╗
+
+            val *= 1.2;
+
+            if (val > 1.0f){
+                val = 1.0f;
             }
-            else if (row == lastR && coll == lastC){
-                matrix[row][coll] = 188; // ╝
+            else if (val < -1.0f){
+                val = -1.0f;
             }
-            else if (row == lastR && coll == 0){
-                matrix[row][coll] = 200; // ╚
-            }
-            else if (row == 0 || row == lastR){
-                matrix[row][coll] = 205; // ═
-            }
-            else if (coll == 0 || coll == lastC){
-                matrix[row][coll] = 186; // ║
-            }
-            else{
-                matrix[row][coll] = terrainGen(matrix[row][coll-1],row,coll,gen); // will be empty space for now
-            }
+            int color = (int)(((val + 1.0f) * 0.5f) * 3);
+            matrix[row][coll] = color;
+
+            
         }
     }
-    //cout << "Finished Filling!" << endl;
 
 }
 
@@ -110,17 +112,17 @@ void printMatrix(vector<vector<int>>& matrix){
     for (int row = 0; row < matrix.size(); row++){
         for (int coll = 0; coll < matrix[row].size();coll++){
             int p = matrix[row][coll];
-            if (p == 247){
-                cout << BLUE << char(p) << RESET; //blue
+            if (p == 0){
+                cout << BLUE << char(247) << RESET; //blue
             }
-            else if (p == 242){
-                cout << YELLOW << char(p) << RESET; // light yellow
+            else if (p == 1){
+                cout << YELLOW << char(242) << RESET; // light yellow
             }
-            else if (p == 240){
-                cout << GREEN << char(p) << RESET; // light green
+            else if (p == 2){
+                cout << GREEN << char(240) << RESET; // light green
             }
-            else if (p ==143){
-                cout << GREY << char(p) << RESET; // Grey
+            else if (p ==3){
+                cout << GREY << char(143) << RESET; // Grey
             }
             else {
                 cout << char(p); // Normal Text Color
@@ -140,6 +142,9 @@ int main(){
     fillMatrix(matrix);
     //cout << matrix.size() << " " << matrix[0].size() ;
     printMatrix(matrix);
+
     cin.get();
+
     return 0;
+
 }
