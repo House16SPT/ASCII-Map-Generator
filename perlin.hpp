@@ -10,7 +10,7 @@ public:
 
     /*
     Code used from https://www.youtube.com/watch?v=kCIaHqb60Cw
-    Some minor changes to be more useful for a 4 type ascii art
+    Some minor changes to be more useful for a 6 type ascii art
     */
 
 
