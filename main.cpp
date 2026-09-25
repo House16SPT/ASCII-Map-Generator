@@ -252,31 +252,31 @@ void update(vector<vector<int>>& matrix,vector<Monster>& MonsterList, int height
 }
 
 void setupConsole(){
-    if (getenv("WT_SESSION")){
-        SetEnvironmentVariableW(L"WT_SESSION",NULL);
+    if (getenv("WT_SESSION")){ //checks if we are running a windows terminal
+        SetEnvironmentVariableW(L"WT_SESSION",NULL); //if so remove the windows terminal from programs environment
 
-        wchar_t path[MAX_PATH];
-        GetModuleFileNameW(NULL, path, MAX_PATH);
-        wstring cmd = L"conhost.exe \"" + wstring(path) + L"\"";
+        wchar_t path[MAX_PATH]; //create a buffer large enough for our games file path
+        GetModuleFileNameW(NULL, path, MAX_PATH); // fills our path
+        wstring cmd = L"conhost.exe \"" + wstring(path) + L"\""; // build command to run game in a classic console 
 
-        STARTUPINFOW si{};
-        si.cb = sizeof(si);
-        PROCESS_INFORMATION pi{};
-        if (CreateProcessW(NULL,cmd.data(),NULL,NULL, FALSE, 0, NULL,NULL, &si, &pi)){
-            CloseHandle(pi.hProcess);
+        STARTUPINFOW si{}; //startup options: {} means default
+        si.cb = sizeof(si); //required to set si.cb to the size of our setup instructions
+        PROCESS_INFORMATION pi{}; //initially empty and is filled on program start
+        if (CreateProcessW(NULL,cmd.data(),NULL,NULL, FALSE, 0, NULL,NULL, &si, &pi)){ // checks to see our process was created.
+            CloseHandle(pi.hProcess); //if so close our pi process and thread reference
             CloseHandle(pi.hThread);
-            exit(0);
+            exit(0); // this closes the old window running in windows terminal
         }
     }
 
-    system("mode con: cols=120 lines=30");
+    system("mode con: cols=120 lines=30"); // this is the command to set our current console size
 
-    HWND hwnd = GetConsoleWindow();
-    LONG style = GetWindowLong(hwnd, GWL_STYLE);
-    style &= ~(WS_SIZEBOX | WS_MAXIMIZEBOX);
-    SetWindowLong(hwnd, GWL_STYLE, style);
+    HWND hwnd = GetConsoleWindow(); //gets the window
+    LONG style = GetWindowLong(hwnd, GWL_STYLE); //get current style of the window for next line
+    style &= ~(WS_SIZEBOX | WS_MAXIMIZEBOX); // we flip bits to turn of sizeable window and maximize window
+    SetWindowLong(hwnd, GWL_STYLE, style); // set new style to our window
 
-    HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+    HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE); //this block gets the std handle so that we can enforce virtual processing for colored characters
     DWORD mode = 0;
     GetConsoleMode(h, &mode);
     SetConsoleMode(h, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
@@ -285,7 +285,7 @@ void setupConsole(){
 
 
 int main(){
-
+    setupConsole();
     SetConsoleOutputCP(437);
 
     
