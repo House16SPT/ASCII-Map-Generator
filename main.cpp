@@ -19,7 +19,7 @@
 #define GREY    "\033[90m"      //Grey
 
 const int ENEMYCOUNT = 200;
-const bool DEBUG = false;
+const bool DEBUG = true;
 
 
 using namespace std;
@@ -134,26 +134,28 @@ void printMatrix(vector<vector<int>>& matrix, vector<Monster>& MonsterList, int 
 
             if (!drawn){
                 int p = matrix[row][coll];
-                if (p == 0){                //prime switch statement material will come back
-                    frame+= BLUE; frame += char(247); frame += RESET; //blue
-                }
-                else if (p == 1){
-                    frame+= LBLUE; frame += char(247); frame += RESET; //blue
-                }
-                else if (p == 2){
-                    frame+= YELLOW; frame += char(242); frame += RESET; // light yellow
-                }
-                else if (p == 3){
-                    frame += GREEN; frame += char(240); frame += RESET; // light green
-                }
-                else if (p ==4){
-                    frame += GREY; frame += '^'; frame += RESET; // Grey
-                }
-                else if (p == 5){
-                    frame += '^'; // white
-                }
-                else {
-                    frame+= char(p); // Normal Text Color
+
+                switch (p){
+                    case 0:
+                        frame+= BLUE; frame += char(247); frame += RESET; //blue
+                        break;
+                    case 1:
+                        frame+= LBLUE; frame += char(247); frame += RESET; //blue
+                        break;
+                    case 2:
+                        frame+= YELLOW; frame += char(242); frame += RESET; // light yellow
+                        break;
+                    case 3:
+                        frame += GREEN; frame += char(240); frame += RESET; // light green
+                        break;
+                    case 4:
+                        frame += GREY; frame += '^'; frame += RESET; // Grey
+                        break;
+                    case 5:
+                        frame += '^'; // white
+                        break;
+                    default:
+                        frame+= char(p); // Normal Text Color
                 }
             }
         }
@@ -162,6 +164,7 @@ void printMatrix(vector<vector<int>>& matrix, vector<Monster>& MonsterList, int 
     cout << frame;
     cout << "Level: " << player.getLevel() << ", Health: " << player.getHealth()
         << ", Damage Multiplier: " << player.getDamage() << ", XP: " << player.getXP() << "/100, WASD = Movement, Q = Quit";
+    cout << "Player = (" << player.x << ")," << "(" << player.y << ")";
     cout.flush();
 }
 
@@ -189,42 +192,48 @@ void update(vector<vector<int>>& matrix,vector<Monster>& MonsterList, int height
 
             if(GetAsyncKeyState('A') & 0x8000/*Check if high-order bit is set (1 << 15)*/)
             {
-                if (!(width/2 - 60 == 0)){
-                    keyisdown = true;
-                    system("cls");
-                    width -= 2;
-                    player.x -=1;
-                    printMatrix(matrix, MonsterList, height,width, player);
+                keyisdown = false;
+                if (player.x > 1){
+                    player.x -= 1;
                 }
+                if (player.x < width/2 && width/2 - 60 > 0){
+                    width -= 2;
+                }
+                system("cls");
+                printMatrix(matrix,MonsterList, height,width, player);
             }
             else if (GetAsyncKeyState('D') & 0x8000){
-                if (!(width/2 + 60 == 1200)){
-                    keyisdown = true;
-                    system("cls");
-                    width += 2;
-                    player.x +=1;
-                    printMatrix(matrix,MonsterList, height,width, player);
+                keyisdown = false;
+                if (player.x < 1198){
+                    player.x += 1;
                 }
+                if (player.x > width/2 && width/2 + 60 < 1200){
+                    width += 2;
+                }
+                system("cls");
+                printMatrix(matrix,MonsterList, height,width, player);
             }
             else if (GetAsyncKeyState('W') & 0x8000){
-                if (!(height/2 - 14 == 0)){
-                    keyisdown = true;
-                    system("cls");
-                    height -= 2;
+                keyisdown = false;
+                if (player.y >= 2){
                     player.y -=1;
-                    printMatrix(matrix,MonsterList,height,width, player);
-
-                    //player.setXP(10);
                 }
+                if (player.y < height/2 && height/2 - 14 > 0){
+                    height -= 2;
+                }
+                system("cls");
+                printMatrix(matrix,MonsterList,height,width, player);
             }
             else if (GetAsyncKeyState('S') & 0x8000){
-                if (!(height/2 + 14 == 280)){
-                    keyisdown = true;
-                    system("cls");
-                    height += 2;
+                keyisdown = false;
+                if (player.y <= 277){
                     player.y +=1;
-                    printMatrix(matrix,MonsterList,height,width, player);
                 }
+                if (player.y > height/2 && height/2 + 14 < 280){
+                    height += 2;
+                }
+                system("cls");
+                printMatrix(matrix,MonsterList,height,width, player);
             }
         }
         if (keyisdown == true){
@@ -251,10 +260,11 @@ int main(){
 
 
     if (DEBUG == true){
-        for (int m = 0; m < MonsterList.size(); m++){
-            cout << "(" << MonsterList[m].x << ")," << "(" << MonsterList[m].y << ")"; 
-        }
-        cout << "Player = (" << player.x << ")," << "(" << player.y << ")"; 
+        //for (int m = 0; m < MonsterList.size(); m++){
+            //cout << "(" << MonsterList[m].x << ")," << "(" << MonsterList[m].y << ")"; 
+        //} 
+        printMatrix(matrix,MonsterList,height,width,player);
+
     }
 
     else{
