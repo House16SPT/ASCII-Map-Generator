@@ -55,6 +55,31 @@ class Monster{
             srand(time(NULL));
             return rand() % damage;
         }
+
+        void movementMonster(){
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            std::uniform_int_distribution moveChoice(1,4);
+
+            switch (moveChoice(gen)){
+                case 1:
+                    x -= 1;
+                    break;
+                case 2:
+                    x += 1;
+                    break;
+                case 3:
+                    y -= 1;
+                    break;
+                case 4:
+                    break;
+                deafult:
+                    y += 1;
+                    break;
+            }
+
+
+        }
 };
 
 #endif

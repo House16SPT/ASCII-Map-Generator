@@ -113,21 +113,25 @@ void printMatrix(vector<vector<int>>& matrix, vector<Monster>& MonsterList, int 
 
     bool drawn = false;
 
+    for (auto& monster : MonsterList){
+        monster.movementMonster();
+    }
+
     string frame;
     frame.reserve((rowend - rowstart) * (collend - collstart)); 
     for (int row = (height/2) - 14; row < (height/2)+14; row++){
         for (int coll = (width/2) - 60; coll < (width/2) + 60;coll++){
             drawn = false;
             
-            if ((row == player.y) && (coll == player.x)){
+            if ((row == player.y) && (coll == player.x)){ //check if player is located here and print if case
                 frame += char(233);
-                drawn = true;
+                drawn = true; // mark character drawn and skip terrain print
             }
 
             for (const auto& position: MonsterList){
-                if ((row == position.y) && (coll == position.x)){
+                if ((row == position.y) && (coll == position.x)){ //check if monster located here and print if case
                     frame += RED; frame += char(233); frame += RESET;
-                    drawn = true;
+                    drawn = true; //mark monster drawn and skip terrain print
                     break;
                 }
             }
@@ -192,7 +196,7 @@ void update(vector<vector<int>>& matrix,vector<Monster>& MonsterList, int height
 
             if(GetAsyncKeyState('A') & 0x8000/*Check if high-order bit is set (1 << 15)*/)
             {
-                keyisdown = false;
+                keyisdown = true;
                 if (player.x > 1){
                     player.x -= 1;
                 }
@@ -203,7 +207,7 @@ void update(vector<vector<int>>& matrix,vector<Monster>& MonsterList, int height
                 printMatrix(matrix,MonsterList, height,width, player);
             }
             else if (GetAsyncKeyState('D') & 0x8000){
-                keyisdown = false;
+                keyisdown = true;
                 if (player.x < 1198){
                     player.x += 1;
                 }
@@ -214,7 +218,7 @@ void update(vector<vector<int>>& matrix,vector<Monster>& MonsterList, int height
                 printMatrix(matrix,MonsterList, height,width, player);
             }
             else if (GetAsyncKeyState('W') & 0x8000){
-                keyisdown = false;
+                keyisdown = true;
                 if (player.y >= 2){
                     player.y -=1;
                 }
@@ -225,7 +229,7 @@ void update(vector<vector<int>>& matrix,vector<Monster>& MonsterList, int height
                 printMatrix(matrix,MonsterList,height,width, player);
             }
             else if (GetAsyncKeyState('S') & 0x8000){
-                keyisdown = false;
+                keyisdown = true;
                 if (player.y <= 277){
                     player.y +=1;
                 }
@@ -240,6 +244,7 @@ void update(vector<vector<int>>& matrix,vector<Monster>& MonsterList, int height
             keyisdown = keycheck(keyisdown);
         }
 
+        //need to delete later will be called in post combat
         if (player.getXP() >= 100){
             player.lvlUp();
         }
