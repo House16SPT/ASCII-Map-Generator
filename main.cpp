@@ -6,6 +6,8 @@
 #include <ranges>
 #include "perlin.hpp"
 #include "player.hpp"
+#include "monster.hpp"
+
 
 
 #define RESET   "\033[0m"       //Default
@@ -13,10 +15,30 @@
 #define YELLOW  "\033[33m"      //Yellow 
 #define BLUE    "\033[34m"      //Blue
 #define LBLUE    "\033[36m"      //Blue
+#define RED    "\033[31m"      //Blue
 #define GREY    "\033[90m"      //Grey
+
+const int ENEMYCOUNT = 200;
+const bool DEBUG = false;
 
 
 using namespace std;
+
+struct Position {
+    int x;
+    int y;
+    int type;
+};
+
+vector<Monster> monsterCreation(int width, int height){
+    vector<Monster> MonsterList;
+
+    for (int m = 0; m < ENEMYCOUNT; m++){
+        MonsterList.emplace_back(Monster());
+    }
+
+    return MonsterList;
+}
 
 void fillMatrix(vector<vector<int>>& matrix){
 
@@ -53,8 +75,8 @@ void fillMatrix(vector<vector<int>>& matrix){
 
                 float val = 0;
 
-                float freq = 1;
-                float amp = 2.3; // amplitude of 
+                float freq = 1; // how stretched/spiky terrain looks. greater = scrambled lower = smoother/flatter
+                float amp = 2; // amplitude of terrain greater = sharper elevation
 
                 for (int i = 0; i < 3; i++){
                     val += Noise::perlin(row *freq / 10 + seedx, coll * freq / 10 + seedy) * amp;
@@ -71,60 +93,75 @@ void fillMatrix(vector<vector<int>>& matrix){
                 else if (val < -1.0f){
                     val = -1.0f;
                 }
-                int color = (int)(((val + 1.0f) * 0.5f) * 5);
-                matrix[row][coll] = color;
+                int fVal = (int)(((val + 1.0f) * 0.5f) * 5); // the 5 represents changes value to be a range of 0-5 
+                //so in this case i can have 5 different ascii characters. for proper visualization a large number
+                //would mean smoother or higher detailed growth.
+
+                matrix[row][coll] = fVal; // return our final value.
             }
         }
     }
 
 }
 
-void printMatrix(vector<vector<int>>& matrix, int height, int width, Player& player){
+
+void printMatrix(vector<vector<int>>& matrix, vector<Monster>& MonsterList, int height, int width, Player& player){
     const int rowstart = (height / 2) - 14;
     const int rowend = (height/2) + 14;
     const int collstart = (width/2) - 60;
     const int collend = (width/2) + 60;
 
+    bool drawn = false;
+
     string frame;
     frame.reserve((rowend - rowstart) * (collend - collstart)); 
     for (int row = (height/2) - 14; row < (height/2)+14; row++){
         for (int coll = (width/2) - 60; coll < (width/2) + 60;coll++){
-
-            if (row == height/2 && coll == width/2){
+            drawn = false;
+            
+            if ((row == player.y) && (coll == player.x)){
                 frame += char(233);
-                continue;
+                drawn = true;
             }
 
+            for (const auto& position: MonsterList){
+                if ((row == position.y) && (coll == position.x)){
+                    frame += RED; frame += char(233); frame += RESET;
+                    drawn = true;
+                    break;
+                }
+            }
 
-
-            int p = matrix[row][coll];
-            if (p == 0){ //prime switch statement material will come back
-                frame+= BLUE; frame += char(247); frame += RESET; //blue
-            }
-            else if (p == 1){
-                frame+= LBLUE; frame += char(247); frame += RESET; //blue
-            }
-            else if (p == 2){
-                frame+= YELLOW; frame += char(242); frame += RESET; // light yellow
-            }
-            else if (p == 3){
-                frame += GREEN; frame += char(240); frame += RESET; // light green
-            }
-            else if (p ==4){
-                frame += GREY; frame += '^'; frame += RESET; // Grey
-            }
-            else if (p == 5){
-                frame += '^'; // white
-            }
-            else {
-                frame+= char(p); // Normal Text Color
+            if (!drawn){
+                int p = matrix[row][coll];
+                if (p == 0){                //prime switch statement material will come back
+                    frame+= BLUE; frame += char(247); frame += RESET; //blue
+                }
+                else if (p == 1){
+                    frame+= LBLUE; frame += char(247); frame += RESET; //blue
+                }
+                else if (p == 2){
+                    frame+= YELLOW; frame += char(242); frame += RESET; // light yellow
+                }
+                else if (p == 3){
+                    frame += GREEN; frame += char(240); frame += RESET; // light green
+                }
+                else if (p ==4){
+                    frame += GREY; frame += '^'; frame += RESET; // Grey
+                }
+                else if (p == 5){
+                    frame += '^'; // white
+                }
+                else {
+                    frame+= char(p); // Normal Text Color
+                }
             }
         }
         frame += "\r\n";
     }
     cout << frame;
-    cout << "Health: " << player.getHealth()
-        << ", " << player.getDamage() << ", Q = Quit";
+    cout << "Level: " << player.getLevel() << ", Health: " << player.getHealth()
+        << ", Damage Multiplier: " << player.getDamage() << ", XP: " << player.getXP() << "/100, WASD = Movement, Q = Quit";
     cout.flush();
 }
 
@@ -138,7 +175,7 @@ bool keycheck(bool keydown){
     return false; cout << "false";
 }
 
-void update(vector<vector<int>>& matrix, int height, int width, Player& player){
+void update(vector<vector<int>>& matrix,vector<Monster>& MonsterList, int height, int width, Player& player){
     
     bool keyisdown = false;
 
@@ -156,7 +193,8 @@ void update(vector<vector<int>>& matrix, int height, int width, Player& player){
                     keyisdown = true;
                     system("cls");
                     width -= 2;
-                    printMatrix(matrix,height,width, player);
+                    player.x -=1;
+                    printMatrix(matrix, MonsterList, height,width, player);
                 }
             }
             else if (GetAsyncKeyState('D') & 0x8000){
@@ -164,7 +202,8 @@ void update(vector<vector<int>>& matrix, int height, int width, Player& player){
                     keyisdown = true;
                     system("cls");
                     width += 2;
-                    printMatrix(matrix,height,width, player);
+                    player.x +=1;
+                    printMatrix(matrix,MonsterList, height,width, player);
                 }
             }
             else if (GetAsyncKeyState('W') & 0x8000){
@@ -172,7 +211,10 @@ void update(vector<vector<int>>& matrix, int height, int width, Player& player){
                     keyisdown = true;
                     system("cls");
                     height -= 2;
-                    printMatrix(matrix,height,width, player);
+                    player.y -=1;
+                    printMatrix(matrix,MonsterList,height,width, player);
+
+                    //player.setXP(10);
                 }
             }
             else if (GetAsyncKeyState('S') & 0x8000){
@@ -180,12 +222,17 @@ void update(vector<vector<int>>& matrix, int height, int width, Player& player){
                     keyisdown = true;
                     system("cls");
                     height += 2;
-                    printMatrix(matrix,height,width, player);
+                    player.y +=1;
+                    printMatrix(matrix,MonsterList,height,width, player);
                 }
             }
         }
         if (keyisdown == true){
             keyisdown = keycheck(keyisdown);
+        }
+
+        if (player.getXP() >= 100){
+            player.lvlUp();
         }
     }
 }
@@ -194,15 +241,28 @@ int main(){
 
     SetConsoleOutputCP(437);
 
-    Player player;
+    
     int height = 280; // 29 window viewport height
     int width = 1200; // 120 window viewport width
     vector<vector<int>> matrix(height,vector<int>(width,0));
-    fillMatrix(matrix); 
-    //cout << matrix.size() << " " << matrix[0].size() ;
-    printMatrix(matrix,height,width, player);
+    vector<Monster> MonsterList = monsterCreation(width, height);
+    fillMatrix(matrix);
+    Player player = Player(width,height);
 
-    update(matrix,height,width, player);
+
+    if (DEBUG == true){
+        for (int m = 0; m < MonsterList.size(); m++){
+            cout << "(" << MonsterList[m].x << ")," << "(" << MonsterList[m].y << ")"; 
+        }
+        cout << "Player = (" << player.x << ")," << "(" << player.y << ")"; 
+    }
+
+    else{
+        printMatrix(matrix,MonsterList,height,width,player);
+    }
+
+
+    update(matrix,MonsterList,height,width,player);
 
     return 0;
 
