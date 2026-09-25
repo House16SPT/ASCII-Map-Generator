@@ -251,6 +251,39 @@ void update(vector<vector<int>>& matrix,vector<Monster>& MonsterList, int height
     }
 }
 
+void setupConsole(){
+    if (getenv("WT_SESSION")){
+        SetEnvironmentVariableW(L"WT_SESSION",NULL);
+
+        wchar_t path[MAX_PATH];
+        GetModuleFileNameW(NULL, path, MAX_PATH);
+        wstring cmd = L"conhost.exe \"" + wstring(path) + L"\"";
+
+        STARTUPINFOW si{};
+        si.cb = sizeof(si);
+        PROCESS_INFORMATION pi{};
+        if (CreateProcessW(NULL,cmd.data(),NULL,NULL, FALSE, 0, NULL,NULL, &si, &pi)){
+            CloseHandle(pi.hProcess);
+            CloseHandle(pi.hThread);
+            exit(0);
+        }
+    }
+
+    system("mode con: cols=120 lines=30");
+
+    HWND hwnd = GetConsoleWindow();
+    LONG style = GetWindowLong(hwnd, GWL_STYLE);
+    style &= ~(WS_SIZEBOX | WS_MAXIMIZEBOX);
+    SetWindowLong(hwnd, GWL_STYLE, style);
+
+    HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD mode = 0;
+    GetConsoleMode(h, &mode);
+    SetConsoleMode(h, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+}
+
+
+
 int main(){
 
     SetConsoleOutputCP(437);
