@@ -42,6 +42,7 @@ class Player{
             return xp;
         }
 
+
         void setXP(int nxp){
             xp += nxp;
         }

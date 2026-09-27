@@ -7,6 +7,7 @@
 #include "perlin.hpp"
 #include "player.hpp"
 #include "monster.hpp"
+#include "combat.hpp"
 
 
 
@@ -104,7 +105,6 @@ void fillMatrix(vector<vector<int>>& matrix){
 
 }
 
-
 void printMatrix(vector<vector<int>>& matrix, vector<Monster>& MonsterList, int height, int width, Player& player){
     const int rowstart = (height / 2) - 14;
     const int rowend = (height/2) + 14;
@@ -182,6 +182,16 @@ bool keycheck(bool keydown){
     return false; cout << "false";
 }
 
+void combatCheck(Player& player, vector<Monster>& MonsterList){
+
+    for (const auto& monster: MonsterList){
+        if ((player.y == monster.y) && (player.x == monster.x)){ //check if monster located here and print if case
+            Combat(player,monster);
+        }
+    }
+
+}
+
 void update(vector<vector<int>>& matrix,vector<Monster>& MonsterList, int height, int width, Player& player){
     
     bool keyisdown = false;
@@ -204,6 +214,7 @@ void update(vector<vector<int>>& matrix,vector<Monster>& MonsterList, int height
                     width -= 2;
                 }
                 system("cls");
+                combatCheck(player,MonsterList);
                 printMatrix(matrix,MonsterList, height,width, player);
             }
             else if (GetAsyncKeyState('D') & 0x8000){
@@ -215,6 +226,7 @@ void update(vector<vector<int>>& matrix,vector<Monster>& MonsterList, int height
                     width += 2;
                 }
                 system("cls");
+                combatCheck(player,MonsterList);
                 printMatrix(matrix,MonsterList, height,width, player);
             }
             else if (GetAsyncKeyState('W') & 0x8000){
@@ -226,6 +238,7 @@ void update(vector<vector<int>>& matrix,vector<Monster>& MonsterList, int height
                     height -= 2;
                 }
                 system("cls");
+                combatCheck(player,MonsterList);
                 printMatrix(matrix,MonsterList,height,width, player);
             }
             else if (GetAsyncKeyState('S') & 0x8000){
@@ -237,6 +250,7 @@ void update(vector<vector<int>>& matrix,vector<Monster>& MonsterList, int height
                     height += 2;
                 }
                 system("cls");
+                combatCheck(player,MonsterList);
                 printMatrix(matrix,MonsterList,height,width, player);
             }
         }
@@ -302,7 +316,6 @@ int main(){
             //cout << "(" << MonsterList[m].x << ")," << "(" << MonsterList[m].y << ")"; 
         //} 
         printMatrix(matrix,MonsterList,height,width,player);
-
     }
 
     else{

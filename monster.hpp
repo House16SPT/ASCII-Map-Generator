@@ -9,7 +9,7 @@
 class Monster{
 
     private:
-        std::string name;
+        
         int health;
         int damage;
 
@@ -18,7 +18,7 @@ class Monster{
              "Highwayman", "Zombie", "Rat", "Vampire Thrall", "Vampire"};
 
     public:
-        
+        std::string name;
         int x;
         int y;
         int type;
@@ -44,6 +44,10 @@ class Monster{
             return damage;
         }
 
+        const std::string getName(){
+            return name;
+        }
+
         std::string nameGen(){
             srand(time(NULL));
             int r = rand() % 9;
@@ -59,7 +63,7 @@ class Monster{
         void movementMonster(){
             std::random_device rd;
             std::mt19937 gen(rd());
-            std::uniform_int_distribution moveChoice(1,4);
+            std::uniform_int_distribution moveChoice(1,5);
 
             switch (moveChoice(gen)){
                 case 1:
@@ -73,8 +77,10 @@ class Monster{
                     break;
                 case 4:
                     break;
-                deafult:
+                case 5:
                     y += 1;
+                    break;
+                default:
                     break;
             }
 
