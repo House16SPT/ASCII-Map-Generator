@@ -13,8 +13,6 @@ public:
     Some minor changes to be more useful for a 6 type ascii art
     */
 
-
-
     Noise();
     
     typedef struct { //2D vector struct

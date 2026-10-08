@@ -26,22 +26,28 @@ class Combat {
         mHP = monster.getHealth();
         mNAME = monster.getName();
 
-        std::cin.
-        start();
+        combatStart();
     }
 
     void combatGUI(){
+        
 
-        std::cout << "Player VS " << mNAME << "\n";
-
-        std::cin >> choice; //need to clear cin buffer probably in print matrix to clear it every frame but maybe not will research.
     }
 
-    start(){
+    combatStart(){
         bool combat = true;
 
         while (combat){
-            combatGUI();
+            std::string frame = "";
+            frame += "\n\n\n\n";
+            frame +="Player VS " +  mNAME + "\n";
+            frame += "\n\n\n\n\n\n\n\n\n";
+            frame += "a = Attack, i = Use Item\n";
+            frame += "Your choice: ";
+            std:: cout << frame;
+
+
+            std::cin >> choice; 
         }
         return true;
     }

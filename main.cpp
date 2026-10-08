@@ -20,7 +20,7 @@
 #define GREY    "\033[90m"      //Grey
 
 const int ENEMYCOUNT = 200;
-const bool DEBUG = true;
+const bool DEBUG = false;
 
 
 using namespace std;
@@ -111,6 +111,8 @@ void printMatrix(vector<vector<int>>& matrix, vector<Monster>& MonsterList, int 
     const int collstart = (width/2) - 60;
     const int collend = (width/2) + 60;
 
+
+
     bool drawn = false;
 
     for (auto& monster : MonsterList){
@@ -172,14 +174,14 @@ void printMatrix(vector<vector<int>>& matrix, vector<Monster>& MonsterList, int 
     cout.flush();
 }
 
-bool keycheck(bool keydown){
+bool keycheck(){
 
     for (const auto i : views::iota(0,256)){
         if (GetAsyncKeyState(i) & 0x8000){
             return true;
         }
     }
-    return false; cout << "false";
+    return false; //cout << "false";
 }
 
 void combatCheck(Player& player, vector<Monster>& MonsterList){
@@ -198,9 +200,12 @@ void update(vector<vector<int>>& matrix,vector<Monster>& MonsterList, int height
 
     while (1){
         Sleep(10);
+        FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
         if (!keyisdown){
+            
             if(GetAsyncKeyState('Q') & 0x8000/*Check if high-order bit is set (1 << 15)*/)
             {
+                FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
                 exit(0);
             }
 
@@ -255,7 +260,7 @@ void update(vector<vector<int>>& matrix,vector<Monster>& MonsterList, int height
             }
         }
         if (keyisdown == true){
-            keyisdown = keycheck(keyisdown);
+            keyisdown = keycheck();
         }
 
         //need to delete later will be called in post combat
@@ -290,10 +295,18 @@ void setupConsole(){
     style &= ~(WS_SIZEBOX | WS_MAXIMIZEBOX); // we flip bits to turn of sizeable window and maximize window
     SetWindowLong(hwnd, GWL_STYLE, style); // set new style to our window
 
-    HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE); //this block gets the std handle so that we can enforce virtual processing for colored characters
+    HANDLE hO = GetStdHandle(STD_OUTPUT_HANDLE); //this gets the std handle so that we can enforce virtual processing for colored characters
+    HANDLE hI = GetStdHandle(STD_INPUT_HANDLE);
     DWORD mode = 0;
-    GetConsoleMode(h, &mode);
-    SetConsoleMode(h, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+    DWORD inMode = mode;
+    GetConsoleMode(hO, &mode);
+    GetConsoleMode(hI, &inMode);
+
+    inMode &= ~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT | ENABLE_QUICK_EDIT_MODE); // sets our mode to disable echo, line input, and mouse clicks
+    inMode |= ENABLE_EXTENDED_FLAGS;
+
+    SetConsoleMode(hO, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+    SetConsoleMode(hI, inMode);
 }
 
 
@@ -312,10 +325,10 @@ int main(){
 
 
     if (DEBUG == true){
-        //for (int m = 0; m < MonsterList.size(); m++){
-            //cout << "(" << MonsterList[m].x << ")," << "(" << MonsterList[m].y << ")"; 
-        //} 
-        printMatrix(matrix,MonsterList,height,width,player);
+        for (int m = 0; m < MonsterList.size(); m++){
+            cout << "(" << MonsterList[m].x << ")," << "(" << MonsterList[m].y << ")"; 
+        } 
+        //printMatrix(matrix,MonsterList,height,width,player);
     }
 
     else{
